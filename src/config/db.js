@@ -1,15 +1,12 @@
 import { PrismaClient } from '@prisma/client';
-import { PrismaPg } from '@prisma/adapter-pg';
-const adapter = new PrismaPg({ connectionString: process.env.DATABASE_URL });
+import { PrismaNeon } from '@prisma/adapter-neon';
+import dotenv from 'dotenv';
 
-const prisma = new PrismaClient({
-  adapter: adapter,
-  log:
-    process.env.NODE_ENV === 'development'
-      ? ['query', 'warn', 'error']
-      : ['error'],
-});
+dotenv.config();
+const connectionString = `${process.env.DATABASE_URL}`;
 
+const adapter = new PrismaNeon({ connectionString });
+const prisma = new PrismaClient({ adapter });
 const connectDB = async () => {
   try {
     await prisma.$connect();
