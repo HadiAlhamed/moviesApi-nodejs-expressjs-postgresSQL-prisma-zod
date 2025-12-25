@@ -1,7 +1,7 @@
-import jwt from 'jsonwebtoken';
 import bcrypt from 'bcryptjs';
 import { StatusCodes } from 'http-status-codes';
 import { prisma } from '../config/db.js';
+import generateToken from '../utils/generate-token.js';
 const register = async (req, res) => {
   const { name, email, password } = req.body;
   if (!name || !email || !password) {
@@ -30,14 +30,12 @@ const register = async (req, res) => {
         password: hashedPassword,
       },
     });
+    const token = await generateToken(user.id, res);
     res.status(StatusCodes.CREATED).json({
       status: 'success',
+      token,
       data: {
-        user: {
-          id: user.id,
-          name,
-          email,
-        },
+        user: { id: user.id, name: user.name, email: user.email },
       },
     });
   } catch (error) {
@@ -48,6 +46,49 @@ const register = async (req, res) => {
       .json({ message: 'Server error during registration' });
   }
 };
-const login = async (req, res) => {};
+const login = async (req, res) => {
+  const { email, password } = req.body;
+  try {
+    const user = await prisma.user.findUnique({
+      where: { email: email },
+    });
+    if (!user) {
+      return res
+        .status(StatusCodes.UNAUTHORIZED)
+        .json({ message: 'user with these credentials does not exist' });
+    }
+    //check password
+    const isPasswordCorrect = await bcrypt.compare(password, user.password);
+    if (!isPasswordCorrect) {
+      return res
+        .status(StatusCodes.UNAUTHORIZED)
+        .json({ message: 'Invalid Credentials , incorrect password' });
+    }
+    const token = await generateToken(user.id, res);
+    res.status(StatusCodes.OK).json({
+      status: 'success',
+      token,
+      data: {
+        user: { id: user.id, name: user.name, email: user.email },
+      },
+    });
+  } catch (error) {
+    console.error('Error during registration:', error);
 
-export { register, login };
+    res
+      .status(StatusCodes.INTERNAL_SERVER_ERROR)
+      .json({ message: 'Server error during login' });
+  }
+};
+
+const logout = async (req, res) => {
+  res.cookie('jwt', '', {
+    expires: new Date(0),
+    httpOnly: true,
+  });
+  res
+    .status(StatusCodes.OK)
+    .json({ status: 'success', message: 'Logged out successfully' });
+};
+
+export { register, login, logout };
