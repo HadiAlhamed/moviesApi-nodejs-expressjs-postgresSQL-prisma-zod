@@ -1,7 +1,7 @@
 import { prisma } from '../config/db.js';
 import { StatusCodes } from 'http-status-codes';
 const addToWatchlist = async (req, res) => {
-  const { movieId, status, rating, notes, userId } = req.body;
+  const { movieId, userId, status, rating, notes } = req.body;
   try {
     //check if movie does not exist
     const movie = await prisma.movie.findUnique({
