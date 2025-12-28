@@ -47,8 +47,11 @@ model WatchlistItem {
   notes     String?
   createdAt DateTime        @default(now())
   updatedAt DateTime        @default(now())
+  //relations
   user      User            @relation(fields: [userId], references: [id], onDelete: Cascade)
   movie     Movie           @relation(fields: [movieId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, movieId])
 }
 
 enum WatchlistStatus {
