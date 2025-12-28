@@ -7,6 +7,10 @@ import watchlistRouter from './routes/watchlist-routes.js';
 import { connectDB, disconnectDB } from './config/db.js';
 import helmet from 'helmet';
 import rateLimit from 'express-rate-limit';
+import {
+  errorHandlerMiddleware,
+  notFoundMiddleware,
+} from './middlewares/error-middleware.js';
 config();
 connectDB();
 
@@ -27,6 +31,12 @@ app.use('/movies', movieRouter);
 app.use('/auth', authRouter);
 app.use('/watchlist', watchlistRouter);
 
+//error handler and not found
+// 404 handler for undefined routes (AFTER all routes)
+app.use(notFoundMiddleware);
+
+// Global error handler (MUST be last)
+app.use(errorHandlerMiddleware);
 const PORT = process.env.PORT || 5000;
 const server = app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
