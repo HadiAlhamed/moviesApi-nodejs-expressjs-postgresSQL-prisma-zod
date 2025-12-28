@@ -1,7 +1,9 @@
 import express from 'express';
 import { config } from 'dotenv';
+//routes import
 import movieRouter from './routes/movie-routes.js';
 import authRouter from './routes/auth-routes.js';
+import watchlistRouter from './routes/watchlist-routes.js';
 import { connectDB, disconnectDB } from './config/db.js';
 import helmet from 'helmet';
 import rateLimit from 'express-rate-limit';
@@ -23,6 +25,7 @@ app.use(express.urlencoded({ extended: true, limit: '10kb' }));
 //routes
 app.use('/movies', movieRouter);
 app.use('/auth', authRouter);
+app.use('/watchlist', watchlistRouter);
 
 const PORT = process.env.PORT || 5000;
 const server = app.listen(PORT, () => {
