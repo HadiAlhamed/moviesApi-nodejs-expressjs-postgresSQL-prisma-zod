@@ -26,6 +26,9 @@ app.use(limiter);
 
 app.use(express.json({ limit: '10kb' }));
 app.use(express.urlencoded({ extended: true, limit: '10kb' }));
+app.get('/', (req, res) => {
+  return res.send('Welcome to home page');
+});
 //routes
 app.use('/movies', movieRouter);
 app.use('/auth', authRouter);
